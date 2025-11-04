@@ -45,6 +45,11 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
     try {
         const { adminname, password } = req.body;
+        
+        if (!adminname || !password) {
+            return res.status(400).render('adminlogin', { error: 'Admin name and password are required' });
+        }
+
         const admin = await Admin.findOne({ adminname });
 
         if (!admin) {
@@ -54,6 +59,11 @@ router.post('/login', async (req, res) => {
         const isMatch = await bcrypt.compare(password, admin.password);
         if (!isMatch) {
             return res.status(401).render('adminlogin', { error: 'Invalid credentials' });
+        }
+
+        if (!process.env.JWT_SECRET) {
+            console.error('JWT_SECRET is not defined in environment variables');
+            return res.status(500).render('adminlogin', { error: 'Server configuration error' });
         }
 
         const token = jwt.sign(
@@ -69,7 +79,8 @@ router.post('/login', async (req, res) => {
 
         res.redirect('/admin/complaints');
     } catch (error) {
-        res.status(500).render('adminlogin', { error: 'Login failed' });
+        console.error('Admin login error:', error);
+        res.status(500).render('adminlogin', { error: 'Login failed. Please try again.' });
     }
 });
 

@@ -6,45 +6,19 @@ router.get('/', (req, res) => {
     res.render('homepage');
 });
 
-// Render the admin login page
+// Render the admin login page (redirect to admin routes)
 router.get('/admin/login', (req, res) => {
-    const isAdminRegistered = false; 
-
-    if (isAdminRegistered) {
-        res.redirect('/admin/dashboard');
-    } else {
-        res.render('adminLogin', { isAdminRegistered });
-    }
+    res.redirect('/admin/login');
 });
 
-// Render the admin registration page
+// Render the admin registration page (redirect to admin routes)
 router.get('/admin/register', (req, res) => {
-    res.render('adminRegister');
+    res.redirect('/admin/register');
 });
 
-// Handle form submission for admin login
-router.post('/admin/login', (req, res) => {
-    const { username, password } = req.body;
-    if (username === 'admin' && password === 'password123') {
-        res.redirect('/admin/dashboard');
-    } else {
-        res.render('adminLogin', { errorMessage: 'Invalid username or password.' });
-    }
-});
-
-// Render the admin dashboard page
-router.get('/admin/dashboard', (req, res) => {
-    res.render('adminDashboard');
-});
-
-// Handle register complaint page
+// Handle register complaint page (redirect to user routes)
 router.get('/complain', (req, res) => {
-    res.render('complain');
-});
-
-// Handle staff login page
-router.get('/staff/login', (req, res) => {
-    res.render('staffLogin');
+    res.redirect('/user/complain_form');
 });
 
 module.exports = router;
