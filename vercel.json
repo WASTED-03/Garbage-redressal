@@ -2,11 +2,7 @@
   "version": 2,
   "functions": {
     "api/index.js": {
-      "includeFiles": [
-        "views/**",
-        "uploads/**",
-        "asset/**"
-      ]
+      "includeFiles": "views/**"
     }
   },
   "routes": [
