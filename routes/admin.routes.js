@@ -50,13 +50,35 @@ router.post('/login', async (req, res) => {
             return res.status(400).render('adminlogin', { error: 'Admin name and password are required' });
         }
 
-        const admin = await Admin.findOne({ adminname });
+        // Allow login by either adminname or email using the same input field
+        const identifier = adminname.trim();
+        const admin = await Admin.findOne({
+            $or: [
+                { adminname: identifier },
+                { email: identifier }
+            ]
+        });
 
         if (!admin) {
             return res.status(401).render('adminlogin', { error: 'Invalid credentials' });
         }
 
-        const isMatch = await bcrypt.compare(password, admin.password);
+        let isMatch = false;
+        const storedPassword = admin.password || '';
+
+        // If password looks like a bcrypt hash, compare securely
+        if (storedPassword.startsWith('$2a$') || storedPassword.startsWith('$2b$') || storedPassword.startsWith('$2y$')) {
+            isMatch = await bcrypt.compare(password, storedPassword);
+        } else {
+            // Legacy fallback: accept one-time plain-text match and migrate to bcrypt
+            if (storedPassword === password) {
+                const migratedHash = await bcrypt.hash(password, 10);
+                admin.password = migratedHash;
+                await admin.save();
+                isMatch = true;
+            }
+        }
+
         if (!isMatch) {
             return res.status(401).render('adminlogin', { error: 'Invalid credentials' });
         }
